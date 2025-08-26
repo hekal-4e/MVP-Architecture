@@ -5,16 +5,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import com.depi.mvpex.R
 import com.depi.mvpex.databinding.ActivityMainBinding
-import com.depi.mvpex.model.domain.User
-import com.depi.mvpex.model.domain.Wisdom
-import com.depi.mvpex.presnter.MainPresenter
+import com.depi.mvpex.viewModels.MainViewModel
 
-class MainActivity : AppCompatActivity(), IMainView {
+class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
-    private val presenter = MainPresenter()
+    lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,23 +25,24 @@ class MainActivity : AppCompatActivity(), IMainView {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         setup()
     }
 
     private fun setup() {
-        presenter.view = this
-        presenter.getUserInfo()
-        binding.buttonFetchWisdom.setOnClickListener { presenter.getWisdom() }
+        viewModel.getUserInfo()
+        binding.buttonFetchWisdom.setOnClickListener { viewModel.getWisdom() }
+
+        viewModel.currentUser.observe(this, {
+            binding.textUserName.text = it.userName
+        })
+
+        viewModel.wisdom.observe(this, {
+            binding.apply {
+                textDate.text = it.publishDate
+                contentHere.text = it.content
+            }
+        })
     }
 
-    override fun onUserInfoSuccess(user: User) {
-        binding.textUserName.text = user.userName
-    }
-
-    override fun onWisdomSuccess(wisdom: Wisdom) {
-        binding.apply {
-            textDate.text = wisdom.publishDate
-            contentHere.text = wisdom.content
-        }
-    }
 }
