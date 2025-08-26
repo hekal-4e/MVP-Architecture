@@ -17,6 +17,7 @@ class MainViewModel : ViewModel() {
     val wisdom: LiveData<Wisdom>
         get() = _wisdom
 
+
     fun getUserInfo() = _currentUser.postValue(repository.getCurrentUser())
 
     fun getWisdom() = _wisdom.postValue(repository.getRandomWisdom())
